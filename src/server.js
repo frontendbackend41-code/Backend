@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 
-import mascotasRoutes from "./src/routes/mascotasRoutes.js";
-import productosRoutes from "./src/routes/productosRoutes.js";
+import mascotasRoutes from "./routes/mascotasRoutes.js";
+import productosRoutes from "./routes/productosRoutes.js";
 
 dotenv.config();
 const app = express();
