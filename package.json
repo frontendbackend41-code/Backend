@@ -1,12 +1,12 @@
 {
   "name": "proyecto-final",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --env-file .env --watch server.js"
-  },
+  "start": "node -r dotenv/config src/server.js",
+  "dev": "node -r dotenv/config --watch src/server.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.20.0",
     "mongoose": "^8.19.1",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
