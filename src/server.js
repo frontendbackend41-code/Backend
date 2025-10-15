@@ -3,8 +3,6 @@ import passport from "passport";
 import session from "express-session";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import cors from "cors";
-import dotenv from "dotenv";
-import "dotenv/config";
 import API_CONFIG from "./config/api.config.js";
 import { conexiondb } from "./db.js";
 import { seedProductos } from "./seed/seedProductos.js";
@@ -44,9 +42,9 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: process.env.CALLBACK_URL
-}, (accessToken, refreshToken, profile, done => {
+}, (accessToken, refreshToken, profile, done) => {
     return done(null, profile);
-})));
+}));
 
 passport.serializeUser((user, done) => donde (null, user))
 passport.deserializeUser((user, done) => done(null, obj))
