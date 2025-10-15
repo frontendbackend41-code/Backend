@@ -4,9 +4,9 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-  "start": "node -r dotenv/config src/server.js",
-  "dev": "node -r dotenv/config --watch src/server.js"
-},
+    "start": "node -r dotenv/config src/server.js",
+    "dev": "node -r dotenv/config --watch src/server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -14,6 +14,7 @@
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
+    "demon": "^0.0.1",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
