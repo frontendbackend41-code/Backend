@@ -1,57 +1,96 @@
-import jwt from "jsonwebtoken";       // ✅ para firmar/verificar JWT
-import Usuario from "../models/Usuario.js"; // ✅ modelo de usuario
+import jwt from "jsonwebtoken";
+import Usuario from "../models/Usuario.js";
 
-// ✅ Helper: firma un JWT con el id del usuario y su rol
+// Firma de JWT (1 hora, ajustable)
 const sign = (user) =>
     jwt.sign(
-    { sub: user._id.toString(), rol: user.rol }, // ✅ payload mínimo
-    process.env.JWT_SECRET,                       // ✅ debe existir en .env
-    { expiresIn: "1h" }                           // ✅ expira en 1 hora (ajustable)
+    { sub: user._id.toString(), rol: user.rol },
+    process.env.JWT_SECRET,
+    { expiresIn: "1h" }
     );
 
-// ✅ POST /api/auth/register
+
 export const register = async (req, res) => {
     try {
-    const { nombre, email, password } = req.body;
+        const {
+        nombre,
+        apellido_paterno,
+        apellido_materno,
+        username,
+        edad,
+        telefono,
+        direccion,   // objeto completo
+        email,
+        password,
+      rol,         // opcional, default en el modelo es "user"
+    } = req.body;
 
-    // ✅ Evitamos duplicados por email
-    const existe = await Usuario.findOne({ email });
-    if (existe) return res.status(409).json({ msg: "Email ya registrado" });
+    // Validación mínima
+    const requeridos = [nombre, apellido_paterno, apellido_materno, username, email, password];
+    if (requeridos.some((v) => !v || String(v).trim() === "")) {
+        return res.status(400).json({ msg: "Faltan campos obligatorios" });
+    }
 
-    // ✅ Se crea el usuario; el hook pre('save') ya hashea el password
-    const user = await Usuario.create({ nombre, email, password });
+    // Unicidad de email y username
+    const existeEmail = await Usuario.findOne({ email });
+    if (existeEmail) return res.status(409).json({ msg: "Email ya registrado" });
 
-    // (Opcional) aquí puedes disparar verificación por correo usando utils/email.js
+    const existeUser = await Usuario.findOne({ username: username.toLowerCase() });
+    if (existeUser) return res.status(409).json({ msg: "Username ya registrado" });
+
+    // Payload a crear
+    const payload = {
+        nombre,
+        apellido_paterno,
+        apellido_materno,
+        username: username.toLowerCase().trim(),
+        edad,
+        telefono,
+        direccion: direccion
+            ? {
+            calle: direccion.calle,
+            numeroInterior: direccion.numeroInterior,
+            numeroExterior: direccion.numeroExterior,
+            colonia: direccion.colonia,
+            codigoPostal: direccion.codigoPostal,
+        }
+        : undefined,
+        email,
+        password, // hash en pre('save') del modelo
+        rol,
+    };
+
+    const user = await Usuario.create(payload);
 
     return res.status(201).json({
         msg: "Registrado",
-      user: { id: user._id, email: user.email, rol: user.rol }, // ✅ nunca regresamos el hash
+        user: {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        rol: user.rol,
+        },
     });
-    } catch (err) {
-    console.error(err);
-    return res.status(500).json({ msg: "Error en registro" });
+        } catch (err) {
+            console.error(err);
+        return res.status(500).json({ msg: "Error en registro" });
     }
 };
 
-// ✅ POST /api/auth/login
 export const login = async (req, res) => {
     try {
     const { email, password } = req.body;
 
-    // ✅ Necesitamos el hash, por eso select("+password")
     const user = await Usuario.findOne({ email }).select("+password");
     if (!user) return res.status(401).json({ msg: "Credenciales inválidas" });
 
-    // ✅ Comparamos el password plano con el hash almacenado
     const ok = await user.compararPassword(password);
     if (!ok) return res.status(401).json({ msg: "Credenciales inválidas" });
 
-    // ✅ Firmamos el token con los datos mínimos
     const token = sign(user);
-
     return res.json({
-      token, // ✅ el frontend lo guarda (header/cookie)
-      user: { id: user._id, email: user.email, rol: user.rol }, // ✅ datos públicos
+        token,
+        user: { id: user._id, email: user.email, username: user.username, rol: user.rol },
     });
     } catch (err) {
     console.error(err);
@@ -59,14 +98,13 @@ export const login = async (req, res) => {
     }
 };
 
-// ✅ GET /api/auth/me (protegida con middleware auth)
+
 export const me = async (req, res) => {
     try {
-    // ✅ req.user viene del middleware, contiene { id, rol }
     const user = await Usuario.findById(req.user.id);
     return res.json({ user });
-        } catch (err) {
+    } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: "Error en /me" });
-        }
+    }
 };
