@@ -60,8 +60,10 @@ app.use("/api/productos", productosRoutes);
 
 const PORT = process.env.PORT || API_CONFIG.SERVER_PORT;
 
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+app.get("/", (req, res) => {
+    res.send("Hola desde vercel")
 });
 
 startServer();
+
+export default app;
