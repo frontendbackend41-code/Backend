@@ -48,8 +48,6 @@ app.get("/auth/logout", (req, res) => { req.logout(() => { res.redirect(process.
 app.use("/api/mascotas", mascotasRoutes);
 app.use("/api/productos", productosRoutes);
 
-const PORT = process.env.PORT || API_CONFIG.SERVER_PORT;
-
 app.get("/", (req, res) => {
     res.send("Hola desde vercel")
 });
