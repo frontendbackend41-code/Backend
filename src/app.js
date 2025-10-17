@@ -10,16 +10,6 @@ import { seedMascotas } from "./seed/seedMascotas.js";
 import mascotasRoutes from "./routes/mascotasRoutes.js";
 import productosRoutes from "./routes/productosRoutes.js";
 
-const startServer = async () => {
-  await conexiondb();
-  //Ejecuta los seed si run_seeds está en true, borra y vuelve a subir los datos
-  //si es false solo carga una vez los datos si no existen
-  if (process.env.RUN_SEEDS === "true") {
-      console.log("Ejecutando seeds...");
-      await seedMascotas();
-      await seedProductos();
-    }
-};
 
 
 const app = express();
@@ -64,6 +54,6 @@ app.get("/", (req, res) => {
     res.send("Hola desde vercel")
 });
 
-startServer();
+conexiondb();
 
 export default app;
